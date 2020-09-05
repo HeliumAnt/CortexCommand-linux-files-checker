@@ -6,6 +6,7 @@ import sys, getopt
 
 
 verbose = False
+fix = True
 ask = True
 
 
@@ -236,14 +237,14 @@ if __name__ == "__main__":
     lua = True
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hvyil")
+        opts, args = getopt.getopt(sys.argv[1:], "hvyiln")
     except getopt.GetoptError:
-        print('file_check.py [-hvyil]')
+        print('file_check.py [-hvyiln]')
         sys.exit(2)
 
         for opt, arg in opts:
             if opt == '-h':
-                print('file_check.py [-hvyil]')
+                print('file_check.py [-hvyiln]')
                 sys.exit()
             elif opt == '-v':
                 verbose = True
