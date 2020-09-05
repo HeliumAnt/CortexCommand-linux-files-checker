@@ -3,27 +3,36 @@ import re
 from pathlib import Path
 
 
+glob = [f"{l}" for l in Path('.').glob('**/*')]
+
+
 def find_includes(lines):
+    """Find all include paths in lines"""
     files = [[l.strip()[len("IncludeFile"):].strip()[len("="):].strip(),a+1] for a,l in enumerate(lines) if l.strip().startswith("IncludeFile")]
     return files
 
 
 def find_scripts(lines):
+    """Find all script paths in lines"""
     files = [[l.strip()[len("ScriptPath"):].strip()[len("="):],a+1] for a,l in enumerate(lines) if l.strip().startswith("ScriptPath")]
     return files
 
 
 def find_files(lines):
+    """Find all file paths in lines"""
     files = [[l.strip()[len("FilePath"):].strip()[len("="):].strip(),a+1] for a,l in enumerate(lines) if l.strip().startswith("FilePath")]
     return files
 
 
 def find_lua_includes(lines):
+    """Find all lua dofile includes from lines"""
     files = [[l.split('"')[1], a+1] for a,l in enumerate(lines) if ("dofile(" in l) and not ("require" in l or "--dofile" in l)]
     return files
 
 
 def find_lua_require(lines):
+    """find all lua require includes from lines
+    """
     files = []
     for a,l in enumerate(lines):
         if "require(" in l:
@@ -39,6 +48,11 @@ def find_lua_require(lines):
 
 
 def check_path(path):
+    """Check if path exists in file system
+    returns
+    0 if path found
+    found_path(string) if found path with different casing
+    """
     if "FilePath" in path:
         print("extra FilePath")
         path = path.split("=")[-1].strip()
@@ -59,6 +73,13 @@ def check_path(path):
 
 
 def check_file_path(path):
+    """
+    Check if FilePath exists in filesystem, checks for all path*.pathsuffix
+    returns:
+    0 if path found
+    found_path(string) if found path with different casing
+    2 if path is missing
+    """
     if "FilePath" in path:
         print("extra FilePath")
         path = path.split("=")[-1].strip()
@@ -83,9 +104,25 @@ def check_file_path(path):
 
 
 def check_require_path(path):
+    """
+    Check if lua require Path exists in filesystem
+    returns:
+    0 if path found
+    found_path(string) if found path with different casing
+    2 if path is missing
+    """
+    if '\\' in path:
+        print("WinPath")
+        path = path.replace("\\", "/")
+    
     temp = '**/'+path+'.lua'
     t_glob = [f for f in Path('.').glob(temp)]
-    return t_glob != []
+    if t_glob != []:
+        return 0
+    else:
+        low = [f"{l}".lower() for l in t_glob]
+        i = 0
+
 
 
 all_inis = Path('.').glob('**/*.ini')
