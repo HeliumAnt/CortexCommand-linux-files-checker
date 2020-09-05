@@ -164,28 +164,49 @@ def inis():
             for l in all_includes:
                 c = check_path(l[0].strip())
                 if c != 0:
-                    print("INCLUDE check {p}:[l[1]]")
                     if c == 2:
-                        print(f"missing {l[0]}")
+                        if verbose:
+                            print("INCLUDE check {p}:[l[1]]")
+                            print(f"missing {l[0]}")
                     else:
-                        print(f"found here {c}, missing {l[0]}")
+                        if ask or verbose:
+                            print("INCLUDE check {p}:[l[1]]")
+                            print(f"found here {c}, missing {l[0]}")
+                        if ask:
+                            ask_user(p, l[0], c)
+                        else:
+                            fix_path(p, l[0], c)
 
             for l in all_scripts:
                 c = check_path(l[0].strip())
                 if c!=0:
-                    print(f"LUA check {p}:{l[1]}")
-                    if c==2:
-                        print(f"missing {l[0]}")
+                    if c == 2:
+                        if verbose:
+                            print("LUA check {p}:[l[1]]")
+                            print(f"missing {l[0]}")
                     else:
-                        print(f"found here {c}, missing {l[0]}")
+                        if ask or verbose:
+                            print("LUA check {p}:[l[1]]")
+                            print(f"found here {c}, missing {l[0]}")
+                        if ask:
+                            ask_user(p, l[0], c)
+                        else:
+                            fix_path(p, l[0], c)
             for l in all_files:
                 c = check_file_path(l[0].strip())
                 if c!=0:
-                    print(f"FILES check {p} line {l[1]}")
-                    if c==2:
-                        print(f"missing {l[0]}")
+                    if c == 2:
+                        if verbose:
+                            print("FILES check {p}:[l[1]]")
+                            print(f"missing {l[0]}")
                     else:
-                        print(f"found at {c} missing {l[1]}")
+                        if ask or verbose:
+                            print("FILES check {p}:[l[1]]")
+                            print(f"found here {c}, missing {l[0]}")
+                        if ask:
+                            ask_user(p, l[0], c)
+                        else:
+                            fix_path(p, l[0], c)
 
 
 def lua():
@@ -223,6 +244,7 @@ if __name__ == "__main__":
         for opt, arg in opts:
             if opt == '-h':
                 print('file_check.py [-hvyil]')
+                sys.exit()
             elif opt == '-v':
                 verbose = True
             elif opt == '-y':
@@ -231,57 +253,7 @@ if __name__ == "__main__":
                 inis = False
             elif opt == '-l':
                 lua = False
-
-
-    all_includes = []
-
-
-    for p in all_inis:
-        with p.open() as f:
-            lines = [l for l in f.readlines()]
-            all_includes = find_includes(lines)
-            all_scripts = find_scripts(lines)
-            all_files = find_files(lines)
-            for l in all_includes:
-                c = check_path(l[0].strip())
-                if c != 0:
-                    print("INCLUDE check {p}:[l[1]]")
-                    if c == 2:
-                        print(f"missing {l[0]}")
-                    else:
-                        print(f"found here {c}, missing {l[0]}")
-
-            for l in all_scripts:
-                c = check_path(l[0].strip())
-                if c!=0:
-                    print(f"LUA check {p}:{l[1]}")
-                    if c==2:
-                        print(f"missing {l[0]}")
-                    else:
-                        print(f"found here {c}, missing {l[0]}")
-            for l in all_files:
-                c = check_file_path(l[0].strip())
-                if c!=0:
-                    print(f"FILES check {p} line {l[1]}")
-                    if c==2:
-                        print(f"missing {l[0]}")
-                    else:
-                        print(f"found at {c} missing {l[1]}")
-
-    for p in all_luas:
-        with p.open() as f:
-            lines = [l for l in f.readlines()]
-            all_lua_includes = find_lua_includes(lines)
-            all_lua_require = find_lua_require(lines)
-            for l in all_lua_includes:
-                if not check_path(l[0]):
-                    print(f"LUA_INCLUDE check {p}:{l[1]}")
-                    print(l[0])
-
-            for l in all_lua_require:
-                if l[0] == "?":
-                    print(f"??? check {p} at line {l[1]}")
-                    continue
-                if not check_require_path(l[0]):
-                    print(f"LUA_REQUIRE check {p} line {l[1]}")
-                    print(l[0])
+        if inis:
+            inis()
+        if lua:
+            lua()
