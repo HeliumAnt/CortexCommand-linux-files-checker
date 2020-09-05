@@ -1,5 +1,5 @@
-import fnmatch
-import re
+from tempfile import mkstemp
+from shutil import move, copymode
 from pathlib import Path
 
 
@@ -114,7 +114,6 @@ def check_require_path(path):
     if '\\' in path:
         print("WinPath")
         path = path.replace("\\", "/")
-    
     temp = '**/'+path+'.lua'
     t_glob = [f for f in Path('.').glob(temp)]
     if t_glob != []:
@@ -123,6 +122,33 @@ def check_require_path(path):
         low = [f"{l}".lower() for l in t_glob]
         i = 0
 
+
+def fix_path(in_file, old_path, rep_path):
+    """
+    """
+    fh, abs_path = mkstemp()
+
+    temp = Path(fh)
+    k = Path(in_file)
+
+    with temp.open('w') as new_file:
+        with k.open() as old_file:
+            for line in old_file:
+                new_file.write(line.replace(old_path, rep_path))
+    copymode(in_file, abs_path)
+    Path(in_file).unlink()
+    move(abs_path, in_file)
+
+
+def ask_user(in_file, old_path, rep_path):
+    """
+    """
+    boo = input('[i]gnore, [r]eplace in file')
+
+    if boo.startswith('i'):
+        return
+    elif boo.startswith('r'):
+        fix_path(in_file, old_path, rep_path)
 
 
 all_inis = Path('.').glob('**/*.ini')
@@ -143,6 +169,7 @@ for p in all_inis:
                     print(f"missing {l[0]}")
                 else:
                     print(f"found here {c}, missing {l[0]}")
+
         for l in all_scripts:
             c = check_path(l[0].strip())
             if c!=0:
