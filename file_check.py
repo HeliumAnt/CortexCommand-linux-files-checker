@@ -151,7 +151,8 @@ def ask_user(in_file, old_path, rep_path):
     if boo.startswith('i'):
         return
     elif boo.startswith('r'):
-        fix_path(in_file, old_path, rep_path)
+        if fix:
+            fix_path(in_file, old_path, rep_path)
 
 
 def inis():
@@ -207,7 +208,8 @@ def inis():
                         if ask:
                             ask_user(p, l[0], c)
                         else:
-                            fix_path(p, l[0], c)
+                            if fix:
+                                fix_path(p, l[0], c)
 
 
 def lua():
@@ -237,9 +239,9 @@ if __name__ == "__main__":
     lua = True
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hvyiln")
+        opts, args = getopt.getopt(sys.argv[1:], "hvyild")
     except getopt.GetoptError:
-        print('file_check.py [-hvyiln]')
+        print('file_check.py [-hvyild]')
         sys.exit(2)
 
         for opt, arg in opts:
@@ -254,6 +256,8 @@ if __name__ == "__main__":
                 inis = False
             elif opt == '-l':
                 lua = False
+            elif opt == '-d':
+                fix = False
         if inis:
             inis()
         if lua:
